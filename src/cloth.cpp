@@ -77,7 +77,6 @@ void Cloth::buildGrid() {
     }
 }
 
-/*
 void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
                      vector<Vector3D> external_accelerations,
                      vector<CollisionObject *> *collision_objects) {
@@ -152,117 +151,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
     }
 
 }
-*/
-void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
-                     vector<Vector3D> external_accelerations,
-                     vector<CollisionObject *> *collision_objects) {
-  double mass = width * height * cp->density / num_width_points / num_height_points;
-  double delta_t = 1.0f / frames_per_sec / simulation_steps;
 
-  // TODO (Part 2): Compute total force acting on each point mass.
-
-
-  Vector3D total = Vector3D(0,0,0);
-  for (Vector3D &v : external_accelerations) {
-    total += v;
-  }
-  Vector3D f = total * mass;
-  for (PointMass &pm : point_masses) {
-    pm.forces = f;
-  }
-
-  for (Spring &s : springs) {
-    if (cp->enable_structural_constraints && s.spring_type == STRUCTURAL) {
-      Vector3D diff = s.pm_b->position - s.pm_a->position;
-      double d = diff.norm();
-      diff.normalize();
-      Vector3D forward_force = cp->ks * (d - s.rest_length) * diff;
-      s.pm_a->forces += forward_force;
-      s.pm_b->forces += -forward_force;
-    }
-    if (cp->enable_shearing_constraints && s.spring_type == SHEARING) {
-      Vector3D diff = s.pm_b->position - s.pm_a->position;
-      double d = diff.norm();
-      diff.normalize();
-      Vector3D forward_force = cp->ks * (d - s.rest_length) * diff;
-      s.pm_a->forces += forward_force;
-      s.pm_b->forces += -forward_force;
-    }
-    if (cp->enable_bending_constraints && s.spring_type == BENDING) {
-      Vector3D diff = s.pm_b->position - s.pm_a->position;
-      double d = diff.norm();
-      diff.normalize();
-      Vector3D forward_force = cp->ks * (d - s.rest_length) * diff;
-      s.pm_a->forces += forward_force;
-      s.pm_b->forces += -forward_force;
-    }
-  }
-
-  // TODO (Part 2): Use Verlet integration to compute new point mass positions
-  for (PointMass &pm : point_masses) {
-    if (!pm.pinned) {
-      // Vector3D old_pos = pm.position;
-      Vector3D accel = pm.forces / mass;
-      Vector3D new_pos = pm.position + (1.0 - cp->damping / 100.0) * (pm.position - pm.last_position) + accel * pow(delta_t, 2);
-      pm.last_position = pm.position;
-      pm.position = new_pos;
-
-    }
-  }
-
-
-  // TODO (Part 4): Handle self-collisions.
-  // This won't do anything until you complete Part 4.
-  for (PointMass &pm : point_masses) {
-    self_collide(pm, simulation_steps);
-  }
-
-
-  // TODO (Part 3): Handle collisions with other primitives.
-  // This won't do anything until you complete Part 3.
-  for (PointMass &pm : point_masses) {
-    for (CollisionObject *co : *collision_objects) {
-      co->collide(pm);
-    }
-  }
-
-
-  // TODO (Part 2): Constrain the changes to be such that the spring does not change
-  // in length more than 10% per timestep [Provot 1995].
-
-  for (Spring &s : springs) {
-    double dist = (s.pm_a->position - s.pm_b->position).norm() - s.rest_length * 1.1;
-    if (dist > 0) {
-      if (s.pm_a->pinned && !s.pm_b->pinned) {
-        // Vector3D dir = s.pm_b - s.pm_a;
-        Vector3D dir = s.pm_a->position - s.pm_b->position;
-        dir.normalize();
-        dir *= dist;
-        s.pm_b->position += dir;
-      }
-      if (!s.pm_a->pinned && s.pm_b->pinned) {
-        // Vector3D dir = s.pm_a - s.pm_b;
-        Vector3D dir = s.pm_b->position - s.pm_a->position;
-        dir.normalize();
-        dir *= dist;
-        s.pm_a->position += dir;
-      }
-      if (!s.pm_a->pinned && !s.pm_b->pinned) {
-        double half = dist / 2.0;
-        // Vector3D a_dir = s.pm_a - s.pm_b;
-        Vector3D a_dir = s.pm_b->position - s.pm_a->position;
-        Vector3D b_dir = -a_dir;
-        a_dir.normalize();
-        a_dir *= half;
-        b_dir.normalize();
-        b_dir *= half;
-        s.pm_a->position += a_dir;
-        s.pm_b->position += b_dir;
-      }
-    }
-  }
-
-}
 void Cloth::build_spatial_map() {
   for (const auto &entry : map) {
     delete(entry.second);
