@@ -23,6 +23,7 @@ using namespace CGL;
      pm.position = pm.last_position + correction_vector * (1.0 - friction);
  }
  */
+
 void Plane::collide(PointMass &pm) {
   // TODO (Part 3): Handle collisions with planes.
     // does the point cross over the plane within this timestep
