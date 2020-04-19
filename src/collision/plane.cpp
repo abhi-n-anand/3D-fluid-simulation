@@ -11,9 +11,34 @@ using namespace CGL;
 
 #define SURFACE_OFFSET 0.0001
 
+/*
+ double distance = (pm.position - origin).norm();
+ if (radius >= distance) {
+     // compute where pm intersected sphere, find tangent
+     Vector3D path = pm.position - origin;
+     path.normalize();
+     // compute correction vector to reach tangent
+     Vector3D correction_vector = path * radius + origin - pm.last_position;
+     // let point mass's new position be last position adjusted by correction vector, multiplied by 1-f
+     pm.position = pm.last_position + correction_vector * (1.0 - friction);
+ }
+ */
 void Plane::collide(PointMass &pm) {
   // TODO (Part 3): Handle collisions with planes.
-
+    // does the point cross over the plane within this timestep
+    bool curPositive = false;
+    bool lastPositive = false;
+    if (dot(point - pm.position, normal) > 0.0) curPositive = true;
+    if (dot(point - pm.last_position, normal) > 0.0) lastPositive = false;
+    if (curPositive != lastPositive) {
+            // dot product of normal
+        // compute where pm would intersect plane, find tangent
+        Vector3D tangent_point = pm.position - (dot(pm.position - point, normal) - SURFACE_OFFSET) * normal;
+        // compute correction vector to reach tangent, use surface offset to displace
+        Vector3D correction_vector = tangent_point - pm.last_position;
+        // let pm's new position be last position adjusted by corr vect mult by 1-f
+        pm.position = pm.last_position + correction_vector * (1.0 - friction);
+    }
 }
 
 void Plane::render(GLShader &shader) {
