@@ -102,10 +102,40 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   double delta_t = 1.0f / frames_per_sec / simulation_steps;
 
   // TODO (Part 2): Compute total force acting on each point mass.
-
+    // total external force
+    for (int i = 0; i < point_masses.size(); i++) {
+        PointMass pm = point_masses[i];
+        pm.forces = Vector3D(0, 0, 0);
+        for (int j = 0; j < external_accelerations.size(); j++) {
+            pm.forces += mass * external_accelerations[j];
+        }
+    }
+    // Hooke's law
+    for (int k = 0; k < springs.size(); k++) {
+        Spring s = springs[k];
+        if (s.spring_type == STRUCTURAL && !cp->enable_structural_constraints) continue;
+        if (s.spring_type == BENDING && !cp->enable_bending_constraints) continue;
+        if (s.spring_type == SHEARING && !cp->enable_shearing_constraints) continue;
+        double fs;
+        Vector3D diff = s.pm_a -> position - s.pm_b -> position;
+        Vector3D oppDiff = s.pm_b -> position - s.pm_a -> position;
+        if (s.spring_type == BENDING) {
+            fs = 0.2 * cp -> ks * (diff.norm() - s.rest_length);
+        } else {
+            fs = cp -> ks * (diff.norm() - s.rest_length);
+        }
+        s.pm_a -> forces += fs * diff.unit();
+        s.pm_b -> forces += fs * oppDiff.unit();
+    }
 
   // TODO (Part 2): Use Verlet integration to compute new point mass positions
-
+    for (int l = 0; l < point_masses.size(); l++) {
+        PointMass pm = point_masses[l];
+        if (pm.pinned) continue;
+        Vector3D lastPos = pm.last_position;
+        pm.last_position = pm.position;
+        pm.position = pm.last_position + (1 - cp -> damping / 100) * (pm.last_position - lastPos) + pow(delta_t, 2) * pm.forces / mass; 
+    }
 
   // TODO (Part 4): Handle self-collisions.
 
