@@ -16,7 +16,7 @@ Cloth::Cloth(double width, double height, int num_width_points,
   this->num_width_points = num_width_points;
   this->num_height_points = num_height_points;
   this->thickness = thickness;
-
+        
   buildGrid();
   buildClothMesh();
 }
@@ -32,6 +32,66 @@ Cloth::~Cloth() {
 
 void Cloth::buildGrid() {
   // TODO (Part 1): Build a grid of masses and springs.
+    for (int j = 0; j < num_height_points; j++) {
+        for (int i = 0; i < num_width_points; i++) {
+            float z;
+            Vector3D v;
+            if (orientation == VERTICAL) {
+                v = Vector3D(i * width / num_width_points, 1.0, j * height / num_height_points);
+            } else {
+                z = rand() / RAND_MAX * (2 / 1000) - (1 / 1000);
+                v = Vector3D(i * width / num_width_points, j * height / num_height_points, z);
+            }
+            
+            vector<int> target = {i, j};
+            bool pin = false;
+            for (std::size_t k = 0; k < pinned.size(); k++) {
+                if (pinned[k] == target) pin = true;
+            }
+            PointMass pm = PointMass(v, pin);
+            point_masses.push_back(pm);
+        }
+    }
+    
+    // structural
+    for (int j = 0; j < num_height_points; j++) {
+        for (int i = 0; i < num_width_points; i++) {
+            // conversion formula [j * num_width_points + i]
+            // change in height --> (j - 1)
+            // change in width --> (i - 1)
+                // this and above
+               if (j > 0) springs.push_back(Spring(&point_masses[j * num_width_points + i], &point_masses[(j - 1) * num_width_points + i], STRUCTURAL));
+                // this and left
+                if (i > 0) springs.push_back(Spring(&point_masses[j * num_width_points + i], &point_masses[j * num_width_points + i - 1], STRUCTURAL));
+                // this and diag left
+               if ((i > 0) && (j > 0)) springs.push_back(Spring(&point_masses[j * num_width_points + i], &point_masses[(j - 1) * num_width_points + (i - 1)], SHEARING));
+                // this and diag right
+                if ((j > 0) && (i < num_width_points - 1)) springs.push_back(Spring(&point_masses[j * num_width_points + i], &point_masses[(j - 1) * num_width_points + (i + 1)], SHEARING));
+                // this and 2 above
+                if (j > 1) springs.push_back(Spring(&point_masses[j * num_width_points + i], &point_masses[(j - 2) * num_width_points + i], BENDING));
+                // this and 2 left
+                if (i > 1) springs.push_back(Spring(&point_masses[j * num_width_points + i], &point_masses[j * num_width_points + i - 2], BENDING));
+
+            
+        }
+    }
+    /*
+    // shearing
+    for (int j = 1; j < num_height_points - 1; j++) {
+        for (int i = 1; i < num_width_points - 1; i++) {
+            PointMass springEnd1 = point_masses[(j + 1) * num_width_points + i - 1];
+            PointMass springEnd2 = point_masses[(j + 1) * num_width_points + i + 1];
+            springs.push_back(Spring(&springEnd1, &springEnd2, SHEARING));
+        }
+    }
+    // bending
+    for (int j = 2; j < num_height_points; j++) {
+        for (int i = 2; i < num_width_points; i++) {
+            PointMass springEnd1 = point_masses[(j - 2) * num_width_points + i];
+            PointMass springEnd2 = point_masses[j * num_width_points + i - 2];
+            springs.push_back(Spring(&springEnd1, &springEnd2, BENDING));
+        }
+    } */
 
 }
 
