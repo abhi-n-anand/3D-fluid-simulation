@@ -77,46 +77,54 @@ void Cloth::buildGrid() {
     }
 }
 
+
 void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
                      vector<Vector3D> external_accelerations,
                      vector<CollisionObject *> *collision_objects) {
+    
   double mass = width * height * cp->density / num_width_points / num_height_points;
   double delta_t = 1.0f / frames_per_sec / simulation_steps;
 
   // TODO (Part 2): Compute total force acting on each point mass.
     // total external force
-    for (int i = 0; i < point_masses.size(); i++) {
-        PointMass pm = point_masses[i];
-        pm.forces = Vector3D(0, 0, 0);
-        for (int j = 0; j < external_accelerations.size(); j++) {
-            pm.forces += mass * external_accelerations[j];
-        }
-    }
+    Vector3D acceleration = Vector3D(0, 0, 0);
+    for (Vector3D &accel : external_accelerations) acceleration += accel;
+    for (PointMass &pm : point_masses) pm.forces = mass * acceleration;
     // Hooke's law
-    for (int k = 0; k < springs.size(); k++) {
-        Spring s = springs[k];
-        if (s.spring_type == STRUCTURAL && !cp->enable_structural_constraints) continue;
-        if (s.spring_type == BENDING && !cp->enable_bending_constraints) continue;
-        if (s.spring_type == SHEARING && !cp->enable_shearing_constraints) continue;
-        double fs;
-        Vector3D diff = s.pm_a -> position - s.pm_b -> position;
-        Vector3D oppDiff = s.pm_b -> position - s.pm_a -> position;
-        if (s.spring_type == BENDING) {
-            fs = 0.2 * cp -> ks * (diff.norm() - s.rest_length);
-        } else {
-            fs = cp -> ks * (diff.norm() - s.rest_length);
+
+    for (Spring &s: springs) {
+        if (s.spring_type == STRUCTURAL && cp->enable_structural_constraints) {
+            Vector3D diff = s.pm_b -> position - s.pm_a -> position;
+            Vector3D diffcopy = Vector3D(diff.x, diff.y, diff.z);
+            diffcopy.normalize();
+            Vector3D force = cp -> ks * (diff.norm() - s.rest_length) * diffcopy;
+            s.pm_a -> forces += force;
+            s.pm_b -> forces -= force;
         }
-        s.pm_a -> forces += fs * diff.unit();
-        s.pm_b -> forces += fs * oppDiff.unit();
+        if (s.spring_type == BENDING && cp->enable_bending_constraints) {
+            Vector3D diff = s.pm_b -> position - s.pm_a -> position;
+            Vector3D diffcopy = Vector3D(diff.x, diff.y, diff.z);
+            diffcopy.normalize();
+            Vector3D force = cp -> ks * (diff.norm() - s.rest_length) * diffcopy;
+            s.pm_a -> forces += force;
+            s.pm_b -> forces -= force;
+        }
+        if (s.spring_type == SHEARING && cp -> enable_shearing_constraints) {
+            Vector3D diff = s.pm_b -> position - s.pm_a -> position;
+            Vector3D diffcopy = Vector3D(diff.x, diff.y, diff.z);
+            diffcopy.normalize();
+            Vector3D force = cp -> ks * (diff.norm() - s.rest_length) * diffcopy;
+            s.pm_a -> forces += force;
+            s.pm_b -> forces -= force;
+        }
     }
 
   // TODO (Part 2): Use Verlet integration to compute new point mass positions
-    for (int l = 0; l < point_masses.size(); l++) {
-        PointMass pm = point_masses[l];
+    for (PointMass &pm : point_masses) {
         if (pm.pinned) continue;
         Vector3D lastPos = pm.last_position;
         pm.last_position = pm.position;
-        pm.position = pm.last_position + (1 - cp -> damping / 100) * (pm.last_position - lastPos) + pow(delta_t, 2) * pm.forces / mass;
+        pm.position = pm.last_position + (1.0 - cp -> damping / 100.0) * (pm.last_position - lastPos) + pow(delta_t, 2) * pm.forces / mass;
     }
     
 
@@ -146,7 +154,6 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
                 s.pm_b -> position += (s.pm_b -> position - s.pm_a -> position).norm() * reduction / 2.0;
             }
             // update rest length
-            s.rest_length = 
         }
     }
 
