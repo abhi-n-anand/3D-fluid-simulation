@@ -34,12 +34,12 @@ void Cloth::buildGrid() {
   // TODO (Part 1): Build a grid of masses and springs.
     for (int j = 0; j < num_height_points; j++) {
         for (int i = 0; i < num_width_points; i++) {
-            float z;
+            double z;
             Vector3D v;
             if (orientation == HORIZONTAL) {
                 v = Vector3D(i * width / num_width_points, 1.0, j * height / num_height_points);
             } else {
-                z = rand() / RAND_MAX * (2 / 1000) - (1 / 1000);
+                z = rand() / (double) RAND_MAX * 0.002 - 0.001;
                 v = Vector3D(i * width / num_width_points, j * height / num_height_points, z);
             }
             
@@ -181,22 +181,27 @@ void Cloth::build_spatial_map() {
 
 void Cloth::self_collide(PointMass &pm, double simulation_steps) {
   // TODO (Part 4): Handle self-collision for a given point mass.
-    double count = 0.0;
-    Vector3D correction_vector = Vector3D(0, 0, 0);
-    double hashKey = hash_position(pm.position);
-    vector<PointMass *> *pointMasses = map[hashKey];
-    for (PointMass *pm1 : *pointMasses) {
-        if (pm1 -> position == pm.position) continue;
-        double dist = (pm1 -> position - pm.position).norm();
-        if (dist < 2 * thickness) {
-            Vector3D dir = pm.position - pm1 -> position;
-            dir.normalize();
-            correction_vector += (2 * thickness - dist) * dir;
-            ++count;
+    Vector3D total = Vector3D(0,0,0);
+      double count = 0.0;
+      float hashKey = hash_position(pm.position);
+      if (map.count(hashKey)) {
+        vector<PointMass *> *pointMasses = map[hashKey];
+        for (PointMass *p_naught : *pointMasses) {
+            if ((p_naught -> position.x != pm.position .x) || (p_naught -> position.y != pm.position.y) || (p_naught -> position.z != pm.position.z)) {
+            double dist = (p_naught->position - pm.position).norm();
+            if (dist < 2.0 * thickness) {
+                Vector3D dir = (pm.position - p_naught->position);
+              dir.normalize();
+              dir *= 2.0 * thickness - dist;
+              total += dir;
+              ++count;
+            }
+          }
         }
+      }
+
+    if (count) pm.position += total / count / simulation_steps;
     }
-    if (count != 0.0) pm. position += correction_vector / count / simulation_steps;
-}
 
 float Cloth::hash_position(Vector3D pos) {
   // TODO (Part 4): Hash a 3D po   sition into a unique float identifier that represents membership in some 3D box volume.
@@ -270,9 +275,9 @@ void Cloth::buildClothMesh() {
       
       
       // Both triangles defined by vertices in counter-clockwise orientation
-      triangles.push_back(new Triangle(pm_A, pm_C, pm_B, 
+      triangles.push_back(new Triangle(pm_A, pm_C, pm_B,
                                        uv_A, uv_C, uv_B));
-      triangles.push_back(new Triangle(pm_B, pm_C, pm_D, 
+      triangles.push_back(new Triangle(pm_B, pm_C, pm_D,
                                        uv_B, uv_C, uv_D));
     }
   }
