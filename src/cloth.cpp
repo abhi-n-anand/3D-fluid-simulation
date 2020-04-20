@@ -34,12 +34,12 @@ void Cloth::buildGrid() {
   // TODO (Part 1): Build a grid of masses and springs.
     for (int j = 0; j < num_height_points; j++) {
         for (int i = 0; i < num_width_points; i++) {
-            double z;
+            float z;
             Vector3D v;
             if (orientation == HORIZONTAL) {
                 v = Vector3D(i * width / num_width_points, 1.0, j * height / num_height_points);
             } else {
-                z = rand() / (double) RAND_MAX * 0.002 - 0.001;
+                z = rand() / RAND_MAX * (2 / 1000) - (1 / 1000);
                 v = Vector3D(i * width / num_width_points, j * height / num_height_points, z);
             }
             
@@ -130,7 +130,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 
   // TODO (Part 4): Handle self-collisions.
     for (PointMass &pm : point_masses) {
-        self_collide(pm, simulation_steps); 
+        self_collide(pm, simulation_steps);
     }
 
   // TODO (Part 3): Handle collisions with other primitives.
