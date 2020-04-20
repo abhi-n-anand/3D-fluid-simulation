@@ -34,12 +34,12 @@ void Cloth::buildGrid() {
   // TODO (Part 1): Build a grid of masses and springs.
     for (int j = 0; j < num_height_points; j++) {
         for (int i = 0; i < num_width_points; i++) {
-            float z;
+            double z;
             Vector3D v;
             if (orientation == HORIZONTAL) {
                 v = Vector3D(i * width / num_width_points, 1.0, j * height / num_height_points);
             } else {
-                z = rand() / RAND_MAX * (2 / 1000) - (1 / 1000);
+                z = rand() / (double) RAND_MAX * 0.002 - 0.001;
                 v = Vector3D(i * width / num_width_points, j * height / num_height_points, z);
             }
             
