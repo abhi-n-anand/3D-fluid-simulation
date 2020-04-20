@@ -214,7 +214,7 @@ I then apply a correction so that the cloth rests at a small offset above the co
      <tr>
        <td>
          <img src="images/sphere3.png" align="middle" width="400px"/>
-         <figcaption align="middle">Cloth on sphere with ks = 500000 N/m.</figcaption>
+         <figcaption align="middle">Cloth on sphere with ks = 50000 N/m.</figcaption>
        </td>
        <td>
          <img src="images/plane.png" align="middle" width="400px"/>
@@ -224,6 +224,9 @@ I then apply a correction so that the cloth rests at a small offset above the co
    </table>
  </div>
 
+ <p> As you can see, increasing the ks directly correlates with the elasticity of the material. In the first picture, we see that with a ks of 500 N/m, the cloth extends significantly further than the ball. As the ks increases to 500000 N/m, the material is unable to cover the sphere and instead rests awkwardly on top of it.
+ We can also note the differences in colors between the three images-- the first is primarily heues of pink and orange while the third is significantly more green than before.   </p>
+
  <h2 align="middle">Part 4: Handling Self-Collisions</h2>
  <p> In this section, I handled cases where some point masses within the cloth would interact with other point masses. Because finding points to test for self-intersection is inefficient if we were to continuously loop over all points and the points near it, I implemented a hashing function.
    This hash function maps a given position to a bucket. I used a polynomial: 31x^2 + 31y + z to ensure the uniqueness of the hash and to minimize collisions. Then, I add point masses to the mapping by evaluating their hash and obtaining a corresponding hashKey. After this, I check for self-collisions. I make sure
@@ -231,15 +234,16 @@ I then apply a correction so that the cloth rests at a small offset above the co
    the final position is established by averaging the desired change and by scaling it down with regards to the number of simulation steps. A fault with this idea is that we only check within a specific bucket, which can lead to an effect known as clipping.
  </p>
 
+<p> These 3 photos were taken at density 15 g/cm^2 and ks 5000 N/m. </p>
  <div align="middle">
    <table style="width=100%">
      <tr>
        <td>
-         <img src="images/finalDragon2.png" align="middle" width="400px"/>
+         <img src="images/fold2.png" align="middle" width="400px"/>
          <figcaption align="middle">Initial folding.</figcaption>
        </td>
        <td>
-         <img src="images/finalDragon3.png" align="middle" width="400px"/>
+         <img src="images/fold3.png" align="middle" width="400px"/>
          <figcaption align="middle">Halfway through folding.</figcaption>
        </td>
      </tr>
@@ -250,40 +254,70 @@ I then apply a correction so that the cloth rests at a small offset above the co
    <table style="width=100%">
      <tr>
        <td>
-         <img src="images/allconstraints.png" align="middle" width="400px"/>
+         <img src="images/fold1.png" align="middle" width="400px"/>
          <figcaption align="middle">Resting state.</figcaption>
        </td>
      </tr>
    </table>
  </div>
 
- <div align="middle">
-   <table style="width=100%">
-     <tr>
-       <td>
-         <img src="images/allconstraints.png" align="middle" width="400px"/>
-         <figcaption align="middle">Control image before density and ks comparison. Density = 1 g/cm^2. ks = 500.</figcaption>
-       </td>
-     </tr>
-   </table>
- </div>
-     <div align="middle">
-       <table style="width=100%">
-     <br>
-     <tr>
-       <td>
-         <img src="images/finalBunny0.png" align="middle" width="400px"/>
-         <figcaption align="middle">Varying density. Density = 100 g/cm^2.</figcaption>
-       </td>
-       <td>
-         <img src="images/finalBunny1.png" align="middle" width="400px"/>
-         <figcaption align="middle">Varying ks. ks = 500.</figcaption>
-       </td>
-     </tr>
-   </table>
- </div>
+ <p> These 3 photos were taken at density 50 g/cm^2 and ks 5000 N/m. </p>
+  <div align="middle">
+    <table style="width=100%">
+      <tr>
+        <td>
+          <img src="images/fold5.png" align="middle" width="400px"/>
+          <figcaption align="middle">Initial folding.</figcaption>
+        </td>
+        <td>
+          <img src="images/fold6.png" align="middle" width="400px"/>
+          <figcaption align="middle">Halfway through folding.</figcaption>
+        </td>
+      </tr>
+    </table>
+  </div>
 
-<p> Discussion on what density and ks do to image. </p>
+  <div align="middle">
+    <table style="width=100%">
+      <tr>
+        <td>
+          <img src="images/fold4.png" align="middle" width="400px"/>
+          <figcaption align="middle">Resting state.</figcaption>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <p> These 3 photos were taken at density 15 g/cm^2 and ks 50000 N/m. </p>
+   <div align="middle">
+     <table style="width=100%">
+       <tr>
+         <td>
+           <img src="images/fold7.png" align="middle" width="400px"/>
+           <figcaption align="middle">Initial folding.</figcaption>
+         </td>
+         <td>
+           <img src="images/fold8.png" align="middle" width="400px"/>
+           <figcaption align="middle">Halfway through folding.</figcaption>
+         </td>
+       </tr>
+     </table>
+   </div>
+
+   <div align="middle">
+     <table style="width=100%">
+       <tr>
+         <td>
+           <img src="images/fold9.png" align="middle" width="400px"/>
+           <figcaption align="middle">Resting state.</figcaption>
+         </td>
+       </tr>
+     </table>
+   </div>
+<p> With regards to modifying density, the first thing I noticed was that the simulation took slightly longer to run as density increased. Second, from the pictures above, we see that the higher density cloth seems to have a signiicantly higher amount of wrinkes. Additionally, there seems to be more clipping present as the cloth folds over itself more. An interesting
+  observation was that the cloth's folds seemed to vary in size more in the 50 g/cm^2 density round than before. The resting states of the two images seem relatively comparable, with the only major distinciton in the size of the folds being slightly larger in the more dense resting state image. With regards to modifying ks, I noticed that a higher ks resulted in
+faster simulations. Additionally, from the images above, it is evident that when compared to the control (first three images), the higher ks value resulted in a cloth simulation that had an insane amount of wrinkles present. The folds were also significantly larger in this simulation because the material was so stiff. This resulted in a resting state that had significantly less clipping but
+at the same time, less and wider folds. </p>
 
 <h2 align="middle">Part 5: Shaders</h2>
 <p> In this section, I implemented various types of shading. I started with diffuse shading, then implemented Blinn-Phong shading, texture mapping,
@@ -297,8 +331,8 @@ I then apply a correction so that the cloth rests at a small offset above the co
      <table style="width=100%">
        <tr>
          <td>
-           <img src="images/finalDragon2.png" align="middle" width="400px"/>
-           <figcaption align="middle">Blinn-Phong Equation. Terms are ambient lighting, diffuse lighting, and specular highlights (established by plus signs).</figcaption>
+           <img src="images/eqn.png" align="middle" width="400px"/>
+           <figcaption align="middle">Blinn-Phong Equation. Terms are ambient lighting, diffuse lighting, and specular highlights (differentiated by plus signs).</figcaption>
          </td>
        </tr>
      </table>
@@ -310,12 +344,12 @@ I then apply a correction so that the cloth rests at a small offset above the co
   <table style="width=100%">
     <tr>
       <td>
-        <img src="images/finalDragon2.png" align="middle" width="400px"/>
-        <figcaption align="middle">Ambient.</figcaption>
+        <img src="images/p1.png" align="middle" width="400px"/>
+        <figcaption align="middle">Ambient, ka = 0.05.</figcaption>
       </td>
       <td>
-        <img src="images/finalDragon3.png" align="middle" width="400px"/>
-        <figcaption align="middle">Diffuse.</figcaption>
+        <img src="images/p2.png" align="middle" width="400px"/>
+        <figcaption align="middle">Ambient, ka = 0.05.</figcaption>
       </td>
     </tr>
   </table>
@@ -324,12 +358,140 @@ I then apply a correction so that the cloth rests at a small offset above the co
   <table style="width=100%">
     <tr>
       <td>
-        <img src="images/finalDragon2.png" align="middle" width="400px"/>
-        <figcaption align="middle">Specular.</figcaption>
+        <img src="images/p3.png" align="middle" width="400px"/>
+        <figcaption align="middle">Diffuse, kd = 0.05.</figcaption>
       </td>
       <td>
-        <img src="images/finalDragon3.png" align="middle" width="400px"/>
-        <figcaption align="middle">All Blinn-Phong components.</figcaption>
+        <img src="images/p4.png" align="middle" width="400px"/>
+        <figcaption align="middle">Diffuse, kd = 0.05.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/p5.png" align="middle" width="400px"/>
+        <figcaption align="middle">Specular, ks = 0.3.</figcaption>
+      </td>
+      <td>
+        <img src="images/p6.png" align="middle" width="400px"/>
+        <figcaption align="middle">Specular, ks = 0.3.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/p7.png" align="middle" width="400px"/>
+        <figcaption align="middle">All components.</figcaption>
+      </td>
+      <td>
+        <img src="images/p8.png" align="middle" width="400px"/>
+        <figcaption align="middle">All components.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<p> Now, texture mapping. This was done using the GLSL's texture function. </p>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/tex1.png" align="middle" width="400px"/>
+        <figcaption align="middle">Texture mapped.</figcaption>
+      </td>
+      <td>
+        <img src="images/tex2.png" align="middle" width="400px"/>
+        <figcaption align="middle">Texture mapped.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<p> Now, bump and displacement mapping. For both mappings, the fragment shader is changed to calculate the texture using surface normals.
+For displacement mapping specifically, the vertex shader is also modified to displace the actual vertices of the shape. </p>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/bump161.png" align="middle" width="400px"/>
+        <figcaption align="middle">Bump mapped, coarseness 16.</figcaption>
+      </td>
+      <td>
+        <img src="images/bump162.png" align="middle" width="400px"/>
+        <figcaption align="middle">Bump mapped, coarseness 16.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/bump1281.png" align="middle" width="400px"/>
+        <figcaption align="middle">Bump mapped, coarseness 128.</figcaption>
+      </td>
+      <td>
+        <img src="images/bump1282.png" align="middle" width="400px"/>
+        <figcaption align="middle">Bump mapped, coarseness 128.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/disp161.png" align="middle" width="400px"/>
+        <figcaption align="middle">Displacement mapped, coarseness 16.</figcaption>
+      </td>
+      <td>
+        <img src="images/disp162.png" align="middle" width="400px"/>
+        <figcaption align="middle">Displacement mapped, coarseness 16.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/disp1281.png" align="middle" width="400px"/>
+        <figcaption align="middle">Displacement mapped, coarseness 128.</figcaption>
+      </td>
+      <td>
+        <img src="images/disp1282.png" align="middle" width="400px"/>
+        <figcaption align="middle">Displacement mapped, coarseness 128.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+<p> I used texture_4 for my bump and displacement mapping. The main differences to note are that the bump mapping doesn't affect the
+silhouette of the sphere & cloth while displacement mapping does. It's hard to discern the difference on the cloth in the initial state, but we see the
+vertical lines present on the sphere & cloth when covering the sphere in the displacement mapped images but not in the bump mapped images. With regards to the change in coarseness across the
+bump mapped images, we see that a greater coarseness is privy to more detail in the resting state. There are more wrinkles present, which implies a more accurate rendering. With regards to the change in coarseness across the
+displacement mapped images, we see again, greater detail in the texture, but also greater detail in the illumination. What I mean by this is that from a texture perspective, the details of the texture we've used for the displacement
+mapping have more wrinkles, greater shading detail, and easily-discernable features. With regards to the illumination, we see less light in the coarseness 128 images, giving a more representative color to the displacement mapped image that
+results from the simulation. </p>
+
+<p> Last but not least, mirror shading. </p>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/mirror1.png" align="middle" width="400px"/>
+        <figcaption align="middle">Mirror shading.</figcaption>
+      </td>
+      <td>
+        <img src="images/mirror2.png" align="middle" width="400px"/>
+        <figcaption align="middle">Mirror shading.</figcaption>
       </td>
     </tr>
   </table>
