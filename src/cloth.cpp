@@ -32,6 +32,14 @@ Cloth::~Cloth() {
 
 void Cloth::buildGrid() {
   // TODO: Part 0 -- Build initial grid
+    int size = int(width);
+    for (int x = 0; x < size; ++x) {
+        for (int y = 0; y < size ++y) {
+            for (int z = 0; z < size ++ z) {
+                point_masses.push_back(Vector3D(x, y, z));
+            }
+        }
+    }
 
 }
 
