@@ -18,7 +18,7 @@ Cloth::Cloth(double width, double height, int num_width_points,
   this->thickness = thickness;
         
   buildGrid();
-  buildClothMesh();
+ // buildClothMesh();
 }
 
 Cloth::~Cloth() {
@@ -35,14 +35,13 @@ void Cloth::buildGrid() {
     int size = int(width);
     for (int x = 0; x < size; ++x) {
         for (int y = 0; y < size; ++y) {
-            for (int z = 0; z < size; ++ z) {
+            int z = 3;
                 PointMass pm = PointMass(Vector3D(x, y, z), false);
                 point_masses.push_back(pm);
             }
         }
-    }
-
 }
+
 
 
 void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
@@ -52,7 +51,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   double mass = width * height * cp->density / num_width_points / num_height_points;
   double delta_t = 1.0f / frames_per_sec / simulation_steps;
 
-  // TODO compute external forces for each particle (in this case, we care about gravity
+  // TODO: -- compute external forces for each particle (in this case, we care about gravity
 
   // Verlet Integration (not sure if necessary for this proj).
     //for (PointMass &pm : point_masses) {
@@ -63,7 +62,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
 //}
     
     // TODO: Part 1 -- Incompressability
-    
+    \
     // TODO: Part 2 -- Tensile Instability
     
     // TODO: Part 3 -- Vorticity Confinement
@@ -86,6 +85,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   
 
 }
+
 
 void Cloth::build_spatial_map() {
   for (const auto &entry : map) {
@@ -151,6 +151,7 @@ void Cloth::reset() {
 }
 
 void Cloth::buildClothMesh() {
+    return;
   if (point_masses.size() == 0) return;
 
   ClothMesh *clothMesh = new ClothMesh();
